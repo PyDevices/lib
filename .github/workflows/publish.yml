@@ -44,7 +44,7 @@ env:
   REF: ${{ github.event.client_payload.source_ref || inputs.ref }}
   TEST_ROOT_REF: ${{ inputs.test-root-ref }}
   # mpy-cross's bytecode version is the one every board reads (v6.3).
-  MPY_CROSS: mpy-cross==1.29.0.post2
+  MPY_CROSS_PIP: mpy-cross==1.29.0.post2
 
 jobs:
   build:
@@ -75,7 +75,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Install mpy-cross
-        run: python -m pip install "$MPY_CROSS"
+        run: python -m pip install "$MPY_CROSS_PIP"
 
       - name: Build the index
         run: python src/tools/libbuild.py build --root src --out build --base-url "${{ steps.pages.outputs.base_url }}"
