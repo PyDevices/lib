@@ -7,6 +7,12 @@ name: Publish the index
 # tag; the run records the tag in pins.json, rebuilds every package from the
 # pins, and deploys. Runs queue one behind another: each rebuilds everything,
 # so the last one in wins, and none is cancelled for a later one.
+#
+# A merge to pydevices' main that touches board_configs/ or drivers/ sends the
+# same dispatch with the `boards` profile and the merge commit. The run lays
+# that commit's two folders over the pinned pydevices release (tools/pins.py),
+# so a board or driver is published when it merges. The next pydevices release
+# clears the pin.
 
 on:
   repository_dispatch:
@@ -15,7 +21,7 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Profile to record (pydevices, palettes, pdwidgets, pygraphics, audioinstruments, audioeffects). Empty rebuilds from the pins as they are.
+        description: Profile to record (pydevices, boards, palettes, pdwidgets, pygraphics, audioinstruments, audioeffects). Empty rebuilds from the pins as they are.
         default: ""
         type: string
       repository:
@@ -23,7 +29,7 @@ on:
         default: ""
         type: string
       ref:
-        description: Release tag to record
+        description: Release tag to record (a full commit hash for the boards profile)
         default: ""
         type: string
       test-root-ref:
@@ -136,7 +142,11 @@ jobs:
             echo "pins.json already records ${PROFILE} ${REF}."
             exit 0
           fi
-          git commit -m "Publish ${REPOSITORY#*/} ${REF}"
+          if [ "${PROFILE}" = boards ]; then
+            git commit -m "Publish boards and drivers from ${REPOSITORY#*/} ${REF:0:12}"
+          else
+            git commit -m "Publish ${REPOSITORY#*/} ${REF}"
+          fi
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then exit 0; fi
             git pull --rebase origin main

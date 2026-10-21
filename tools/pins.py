@@ -13,9 +13,15 @@
   ``pydevices`` checkout.
 * ``pygraphics``, ``audioinstruments`` and ``audioeffects`` are releases of
   repositories of their own.
+* ``boards`` is a commit, not a release: a merge to the library repository's
+  main branch that touched ``board_configs/`` or ``drivers/``. When pinned,
+  that commit's two folders replace the ones in the ``pydevices`` checkout, so
+  a board or driver is published when it merges, over the core of the last
+  release. The next ``pydevices`` release clears the pin.
 
 A publication request names a profile, the repository it came from and the
-tag. ``apply`` checks them against ``pins.json`` and records the tag.
+tag (the commit, for ``boards``). ``apply`` checks them against ``pins.json``
+and records it.
 ``fetch`` checks the pinned sources out, ``lock`` writes the pinned tags into
 the checkout's ``lib-lock.json`` for its builder, and ``verify`` checks a built
 index has every package at the version pinned.
@@ -38,6 +44,12 @@ PINS = Path(__file__).resolve().parent.parent / "pins.json"
 #: Profiles whose tag names a folder of the library repository.
 FOLDER_PROFILES = ("palettes", "pdwidgets")
 
+#: The profile whose ref is a commit of the library repository, and the
+#: folders that commit supplies over the pinned release.
+BOARDS_PROFILE = "boards"
+BOARDS_FOLDERS = ("board_configs", "drivers")
+COMMIT = re.compile(r"^[0-9a-f]{40}$")
+
 TAG = re.compile(r"^(?:(?:palettes|pdwidgets)-)?v[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+|\.dev[0-9]+)?$")
 
 
@@ -56,6 +68,13 @@ def apply(profile: str, repository: str, ref: str) -> None:
     expected = pins[profile]["repository"]
     if repository != expected:
         raise SystemExit(f"profile {profile!r} comes from {expected}, not {repository}")
+    if profile == BOARDS_PROFILE:
+        if not COMMIT.match(ref):
+            raise SystemExit(f"profile {profile!r} takes a full commit hash, not {ref!r}")
+        pins[profile]["ref"] = ref
+        save(pins)
+        print(f"{profile} -> {ref}")
+        return
     if not TAG.match(ref):
         raise SystemExit(f"{ref!r} is not a release tag (vX.Y.Z, optionally rcN, aN, bN or .devN)")
     prefix = f"{profile}-" if profile in FOLDER_PROFILES else ""
@@ -64,6 +83,10 @@ def apply(profile: str, repository: str, ref: str) -> None:
     if not prefix and ref.split("-")[0] in FOLDER_PROFILES:
         raise SystemExit(f"profile {profile!r} takes a plain vX.Y.Z tag, not {ref!r}")
     pins[profile]["ref"] = ref
+    if profile == "pydevices" and pins.get(BOARDS_PROFILE, {}).get("ref"):
+        # A release carries every board and driver merged before it.
+        print(f"{BOARDS_PROFILE} {pins[BOARDS_PROFILE]['ref'][:12]} -> released with {ref}")
+        pins[BOARDS_PROFILE]["ref"] = None
     save(pins)
     print(f"{profile} -> {ref}")
 
@@ -91,6 +114,15 @@ def fetch(out: Path, root_ref: str | None) -> None:
     print(f"{root['repository']} @ {ref}")
     _fetch(root["repository"], ref, out)
     scratch = out.parent / (out.name + "-folders")
+    boards = pins.get(BOARDS_PROFILE, {})
+    if boards.get("ref") and not root_ref:
+        board_ref = boards["ref"]
+        print(f"  {', '.join(f'{name}/' for name in BOARDS_FOLDERS)} from {boards['repository']} @ {board_ref}")
+        source = scratch / BOARDS_PROFILE
+        _fetch(boards["repository"], board_ref, source)
+        for name in BOARDS_FOLDERS:
+            shutil.rmtree(out / name, ignore_errors=True)
+            shutil.copytree(source / name, out / name, ignore=shutil.ignore_patterns(".git"))
     for name in FOLDER_PROFILES:
         pin = pins[name]
         if not pin["ref"]:
@@ -125,6 +157,12 @@ def verify(index: Path) -> None:
     published = index / "package" / "py"
     bad = []
     for name, pin in pins.items():
+        if name == BOARDS_PROFILE:
+            # A commit, not a version: its boards and drivers carry the
+            # numbers of the release under them.
+            if pin["ref"]:
+                print(f"  boards and drivers from {pin['ref'][:12]}")
+            continue
         if name in FOLDER_PROFILES or name == "pydevices":
             want = None
             if pin["ref"]:
