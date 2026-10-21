@@ -21,7 +21,11 @@
 
 A publication request names a profile, the repository it came from and the
 tag (the commit, for ``boards``). ``apply`` checks them against ``pins.json``
-and records it.
+and records it. ``record`` is ``apply`` plus a commit pushed to main, retried
+against whatever else landed meanwhile; the workflow runs it the moment a
+request arrives, before the request waits its turn to build, so a request that
+GitHub later replaces in the queue is still in ``pins.json`` for the build
+that replaces it.
 ``fetch`` checks the pinned sources out, ``lock`` writes the pinned tags into
 the checkout's ``lib-lock.json`` for its builder, and ``verify`` checks a built
 index has every package at the version pinned.
@@ -37,6 +41,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 PINS = Path(__file__).resolve().parent.parent / "pins.json"
@@ -93,6 +98,41 @@ def apply(profile: str, repository: str, ref: str) -> None:
 
 def _git(*args: str, cwd: Path | None = None) -> None:
     subprocess.run(["git", *args], cwd=cwd, check=True, stdout=subprocess.DEVNULL)
+
+
+def _message(profile: str, repository: str, ref: str) -> str:
+    if profile == BOARDS_PROFILE:
+        return f"Publish boards and drivers from {repository.split('/')[-1]} {ref[:12]}"
+    return f"Publish {repository.split('/')[-1]} {ref}"
+
+
+def record(profile: str, repository: str, ref: str, remote: str = "origin", branch: str = "main", attempts: int = 6) -> None:
+    """Record a request in pins.json and push the commit to ``remote``'s ``branch``.
+
+    Meant for the workflow's own checkout: each attempt first sets the checkout
+    to the remote's branch, so a push that lost a race to another request's
+    commit starts again from the merged ``pins.json`` rather than conflicting.
+    It refuses to start in a checkout with uncommitted changes.
+    """
+    root = PINS.parent
+    if subprocess.run(["git", "status", "--porcelain"], cwd=root, check=True, capture_output=True, text=True).stdout.strip():
+        raise SystemExit("record resets the checkout to the remote branch, and this one has uncommitted changes")
+    identity = ["-c", "user.name=github-actions[bot]", "-c", "user.email=github-actions[bot]@users.noreply.github.com"]
+    for attempt in range(1, attempts + 1):
+        _git("fetch", "-q", remote, branch, cwd=root)
+        _git("reset", "-q", "--hard", "FETCH_HEAD", cwd=root)
+        apply(profile, repository, ref)
+        _git("add", PINS.name, cwd=root)
+        if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=root).returncode == 0:
+            print(f"pins.json already records {profile} {ref}.")
+            return
+        _git(*identity, "commit", "-q", "-m", _message(profile, repository, ref), cwd=root)
+        if subprocess.run(["git", "push", "-q", remote, f"HEAD:{branch}"], cwd=root).returncode == 0:
+            print(f"recorded {profile} {ref}")
+            return
+        print(f"push lost a race (attempt {attempt}); starting again from {remote}/{branch}", file=sys.stderr)
+        time.sleep(min(attempt, 3))
+    raise SystemExit(f"could not push pins.json after {attempts} attempts")
 
 
 def _fetch(repository: str, ref: str, destination: Path) -> None:
@@ -189,6 +229,10 @@ def main() -> None:
     a.add_argument("--profile", required=True)
     a.add_argument("--repository", required=True)
     a.add_argument("--ref", required=True)
+    r = commands.add_parser("record", help="apply a request and push the commit to main, retrying when another request lands first")
+    r.add_argument("--profile", required=True)
+    r.add_argument("--repository", required=True)
+    r.add_argument("--ref", required=True)
     f = commands.add_parser("fetch", help="check out the pinned sources")
     f.add_argument("--out", required=True, type=Path)
     f.add_argument("--root-ref", help="build the library repository at this ref instead of the pinned release (a test build)")
@@ -199,6 +243,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "apply":
         apply(args.profile, args.repository, args.ref)
+    elif args.command == "record":
+        record(args.profile, args.repository, args.ref)
     elif args.command == "fetch":
         fetch(args.out, args.root_ref)
     elif args.command == "lock":

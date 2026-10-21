@@ -5,8 +5,18 @@ name: Publish the index
 # `publish-package-release` dispatch here (PyDevices/.github's
 # reusable-request-mip-publication.yml), naming its profile, repository and
 # tag; the run records the tag in pins.json, rebuilds every package from the
-# pins, and deploys. Runs queue one behind another: each rebuilds everything,
-# so the last one in wins, and none is cancelled for a later one.
+# pins, and deploys.
+#
+# Recording comes first and is not queued. GitHub's concurrency group holds one
+# running job and one pending job, and a newer pending job replaces the older
+# one, so a request that waited in the queue could be replaced by a later one
+# and its pin never written. Instead the `record` job commits the pin to main
+# the moment the request arrives; only the build and the deploy queue. Each
+# build starts by checking out main, so it carries every pin recorded before
+# it started, and a build that replaces a pending one still publishes the
+# pending one's release. (pins.json therefore says what was asked for; a
+# build that fails leaves its pin there, and the next build fails the same way
+# until the pin is fixed.)
 #
 # A merge to pydevices' main that touches board_configs/ or drivers/ sends the
 # same dispatch with the `boards` profile and the merge commit. The run lays
@@ -37,10 +47,6 @@ on:
         default: ""
         type: string
 
-concurrency:
-  group: omnipython-lib-publication-queue
-  cancel-in-progress: false
-
 permissions:
   contents: read
 
@@ -53,7 +59,28 @@ env:
   MPY_CROSS_PIP: mpy-cross==1.29.0.post2
 
 jobs:
+  record:
+    # Not in the queue: every request writes its pin before it waits.
+    if: github.event.client_payload.profile != '' || (inputs.profile != '' && inputs.test-root-ref == '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - name: Record the release in pins.json on main
+        run: python tools/pins.py record --profile "$PROFILE" --repository "$REPOSITORY" --ref "$REF"
+
   build:
+    needs: record
+    # The record job is skipped for a rebuild or a test build, which is fine;
+    # it failing (a request pins.py refuses) is not.
+    if: ${{ !failure() && !cancelled() }}
+    concurrency:
+      group: omnipython-lib-publication-queue
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -64,10 +91,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-
-      - name: Record the release
-        if: env.PROFILE != '' && env.TEST_ROOT_REF == ''
-        run: python tools/pins.py apply --profile "$PROFILE" --repository "$REPOSITORY" --ref "$REF"
 
       - name: Check out the pinned sources
         run: |
@@ -89,9 +112,6 @@ jobs:
       - name: Check the index against the pins
         run: python tools/pins.py verify build/index
 
-      - name: Keep what the record job commits
-        run: cp pins.json "$RUNNER_TEMP/pins.json"
-
       - name: Prepare the Pages artifact
         run: touch build/index/.nojekyll
 
@@ -99,13 +119,12 @@ jobs:
         with:
           path: build/index
 
-      - uses: actions/upload-artifact@v7
-        with:
-          name: pins
-          path: ${{ runner.temp }}/pins.json
-
   deploy:
     needs: build
+    # The same queue as the build, so two deploys never overlap.
+    concurrency:
+      group: omnipython-lib-publication-queue
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -116,40 +135,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
-
-  record:
-    # pins.json says what is live, so it changes only once the deploy worked.
-    needs: deploy
-    if: github.event.client_payload.profile != '' || (inputs.profile != '' && inputs.test-root-ref == '')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-      - uses: actions/download-artifact@v8
-        with:
-          name: pins
-          path: ${{ runner.temp }}/pins
-      - name: Commit pins.json
-        run: |
-          cp "$RUNNER_TEMP/pins/pins.json" pins.json
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add pins.json
-          if git diff --cached --quiet; then
-            echo "pins.json already records ${PROFILE} ${REF}."
-            exit 0
-          fi
-          if [ "${PROFILE}" = boards ]; then
-            git commit -m "Publish boards and drivers from ${REPOSITORY#*/} ${REF:0:12}"
-          else
-            git commit -m "Publish ${REPOSITORY#*/} ${REF}"
-          fi
-          for attempt in 1 2 3; do
-            if git push origin HEAD:main; then exit 0; fi
-            git pull --rebase origin main
-          done
-          echo "push failed after 3 attempts" >&2
-          exit 1
