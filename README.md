@@ -58,7 +58,10 @@ too, naming the commit: the board and driver files come from that commit and
 everything else from the last pydevices release, so a board or driver is
 published when it merges. The next pydevices release carries them and clears
 the commit. [`publish.yml`](.github/workflows/publish.yml) records the request
-in [`pins.json`](pins.json), rebuilds every package from the releases pinned
-there with pydevices' `tools/libbuild.py`, and deploys the result. Requests
-queue, one run at a time. A run can also be started by hand from the Actions
-tab to rebuild from the pins as they are.
+in [`pins.json`](pins.json) as soon as it arrives, rebuilds every package from
+the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the
+result. Builds queue, one at a time, and a build waiting behind another may be
+replaced by a newer one; that costs nothing, because every build starts from
+the pins as recorded so far, so each request is in the index by the next build
+that finishes. A run can also be started by hand from the Actions tab to
+rebuild from the pins as they are.
