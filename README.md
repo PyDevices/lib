@@ -7,7 +7,7 @@ event and timing libraries, `bledev`, `midiports`, the `usb-*` packages, every
 board config and every driver), plus palettes, pdwidgets, appkit,
 [pygraphics](https://github.com/PyDevices/pygraphics) and the audio instruments
 and effects. Nothing here is edited by hand: each package is built from a
-release of the repository it lives in.
+release of the repository it lives in (boards and drivers, from their merge).
 
 This address is temporary. The index will move to `lib.omnipython.org`, and
 this page will redirect there.
@@ -52,7 +52,12 @@ mip.install("bledev", index="https://pydevices.github.io/lib")
 ## How it is published
 
 A release in any of the source repositories sends this repository a request
-naming the release. [`publish.yml`](.github/workflows/publish.yml) records it
+naming the release. A merge to pydevices' `main` that changes a board config or
+a driver (`board_configs/` or `drivers/`, `tested.json` included) sends one
+too, naming the commit: the board and driver files come from that commit and
+everything else from the last pydevices release, so a board or driver is
+published when it merges. The next pydevices release carries them and clears
+the commit. [`publish.yml`](.github/workflows/publish.yml) records the request
 in [`pins.json`](pins.json), rebuilds every package from the releases pinned
 there with pydevices' `tools/libbuild.py`, and deploys the result. Requests
 queue, one run at a time. A run can also be started by hand from the Actions
