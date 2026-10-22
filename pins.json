@@ -13,7 +13,7 @@
   },
   "pdwidgets": {
     "repository": "PyDevices/pydevices",
-    "ref": null
+    "ref": "pdwidgets-v0.0.25"
   },
   "pygraphics": {
     "repository": "PyDevices/pygraphics",
