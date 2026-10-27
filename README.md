@@ -1,18 +1,10 @@
+![The index's web page, listing its packages](docs/images/index-page.png)
+
 # lib
 
-The package index for OmniPython's own libraries, served from GitHub Pages at
-**https://pydevices.github.io/lib**. It holds what
-[pydevices](https://github.com/PyDevices/pydevices) builds (the display, audio,
-event and timing libraries, `bledev`, `midiports`, the `usb-*` packages, every
-board config and every driver), plus palettes, pdwidgets, appkit,
-[pygraphics](https://github.com/PyDevices/pygraphics) and the audio instruments
-and effects. Nothing here is edited by hand: each package is built from a
-release of the repository it lives in (boards and drivers, from their merge).
+The `mip` index for OmniPython's libraries, board configs and drivers, at **https://pydevices.github.io/lib**.
 
-This address is temporary. The index will move to `lib.omnipython.org`, and
-this page will redirect there.
-
-## Install a package
+## Install
 
 On a board with Wi-Fi, in the REPL:
 
@@ -21,47 +13,39 @@ import mip
 mip.install("pydevices", index="https://pydevices.github.io/lib")
 ```
 
-From a computer, with `mpremote`:
+From a computer, onto a board on USB:
 
-```
+```bash
 mpremote mip install --index https://pydevices.github.io/lib pydevices
 ```
 
-A board config installs the same way, by the name of its folder in
-[board_configs](https://github.com/PyDevices/pydevices/tree/main/board_configs)
-(for example `esp32-s3-touch-lcd-7`), and brings its drivers and `pydevices`
-with it. The index carries `.mpy` files for the MicroPython bytecode version
-your board runs, and `.py` source for anything else.
+## Try it
 
-Packages that a person has run on real hardware are in the main index. The
-ones nobody has run yet are in `https://pydevices.github.io/lib/untested`:
-installing from there is a choice, and everything still comes from this index.
-[CONTRIBUTING.md](https://github.com/PyDevices/pydevices/blob/main/CONTRIBUTING.md)
-says how to add a board or a driver and how one becomes tested.
+With the unix port of MicroPython, install pygraphics into `lib/` and draw:
 
-Packages that come from [micropython-lib](https://github.com/micropython/micropython-lib)
-(`aioble`, `sdcard`, `bmi270`, `usb-device-*`) are not copied here: `mip` takes
-every file of a package from the one index it was given, so install those from
-the default index first, then ours:
-
-```python
-mip.install("aioble")
-mip.install("bledev", index="https://pydevices.github.io/lib")
+```bash
+micropython -m mip install --index https://pydevices.github.io/lib --target lib pygraphics
 ```
 
-## How it is published
+```python
+import pygraphics
+from pygraphics import FrameBuffer, RGB565
 
-A release in any of the source repositories sends this repository a request
-naming the release. A merge to pydevices' `main` that changes a board config or
-a driver (`board_configs/` or `drivers/`, `tested.json` included) sends one
-too, naming the commit: the board and driver files come from that commit and
-everything else from the last pydevices release, so a board or driver is
-published when it merges. The next pydevices release carries them and clears
-the commit. [`publish.yml`](.github/workflows/publish.yml) records the request
-in [`pins.json`](pins.json) as soon as it arrives, rebuilds every package from
-the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the
-result. Builds queue, one at a time, and a build waiting behind another may be
-replaced by a newer one; that costs nothing, because every build starts from
-the pins as recorded so far, so each request is in the index by the next build
-that finishes. A run can also be started by hand from the Actions tab to
-rebuild from the pins as they are.
+fb = FrameBuffer(bytearray(160 * 80 * 2), 160, 80, RGB565)
+fb.fill(0x0000)
+card = fb.round_rect(8, 8, 64, 40, 8, 0xF800, f=True)
+dot = fb.circle(116, 28, 20, 0x07E0, f=True)
+label = pygraphics.text16(fb, "Hello", 8, 56, 0xFFFF)
+print("changed:", card + dot + label)
+fb.save("hello.bmp")
+```
+
+```text
+changed: Area(8, 8, 128, 64)
+```
+
+![hello.bmp: a red rounded rectangle, a green circle and the word Hello](docs/images/hello.png)
+
+[Docs](https://github.com/PyDevices/lib/blob/main/docs/index.md) · [Examples](https://pydevices.github.io/pydevices-examples/gallery/) · [Roadmap](ROADMAP.md)
+
+Made by [PyDevices](https://pydevices.com).
