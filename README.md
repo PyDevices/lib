@@ -46,6 +46,6 @@ changed: Area(8, 8, 128, 64)
 
 ![hello.bmp: a red rounded rectangle, a green circle and the word Hello](docs/images/hello.png)
 
-[Docs](https://github.com/PyDevices/lib/blob/main/docs/index.md) · [Examples](https://pydevices.github.io/pydevices-examples/gallery/) · [Roadmap](ROADMAP.md)
+[Docs](https://github.com/PyDevices/lib/blob/main/docs/index.md) · [Examples](https://pydevices.github.io/gallery/gallery/) · [Roadmap](ROADMAP.md)
 
 Made by [PyDevices](https://pydevices.com).
