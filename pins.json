@@ -21,7 +21,7 @@
   },
   "audioinstruments": {
     "repository": "PyDevices/audiocomponents",
-    "ref": "v0.4.1"
+    "ref": "v0.4.2rc1"
   },
   "audioeffects": {
     "repository": "PyDevices/audiocomponents",
