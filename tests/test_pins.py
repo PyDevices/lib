@@ -176,3 +176,37 @@ class Recording(Checkout):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Locking(unittest.TestCase):
+    """lock() writes pins.json's tags into a root's lib-lock.json."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.saved = pins.PINS
+        self.addCleanup(lambda: setattr(pins, "PINS", self.saved))
+        pins.PINS = self.dir / "pins.json"
+
+    def lock(self, pin, locked):
+        pins.save({"audioinstruments": pin})
+        root = self.dir / "root"
+        root.mkdir()
+        (root / "lib-lock.json").write_text(json.dumps({"pinned": {"audioinstruments": locked}}))
+        pins.lock(root)
+        return json.loads((root / "lib-lock.json").read_text())["pinned"]["audioinstruments"]
+
+    def test_a_root_that_names_a_former_repository_is_locked_to_the_new_one(self):
+        entry = self.lock(
+            {"repository": "PyDevices/audioinstruments", "ref": "v0.5.0", "formerly": ["PyDevices/audiocomponents"]},
+            {"repository": "PyDevices/audiocomponents", "ref": "v0.4.0"},
+        )
+        self.assertEqual(entry, {"repository": "PyDevices/audioinstruments", "ref": "v0.5.0"})
+
+    def test_a_root_that_names_another_repository_is_refused(self):
+        with self.assertRaises(SystemExit):
+            self.lock(
+                {"repository": "PyDevices/audioinstruments", "ref": "v0.5.0", "formerly": ["PyDevices/audiocomponents"]},
+                {"repository": "PyDevices/somewhere-else", "ref": "v0.4.0"},
+            )

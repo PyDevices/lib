@@ -10,6 +10,8 @@ A release in any of the source repositories sends this repository a request nami
 
 [`publish.yml`](../../.github/workflows/publish.yml) records each request in [`pins.json`](../../pins.json) as soon as it arrives. It then rebuilds every package from the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the result to GitHub Pages.
 
+When a package moves to a new repository, its entry in `pins.json` names the new one and lists the old under `formerly`. A pydevices release made before the move still names the old repository in its `lib-lock.json`; the build takes the package from the new one at the pinned tag.
+
 Builds queue, one at a time, and a newer build can replace one that's still waiting. Nothing is lost when that happens: every build starts from the pins as recorded so far, so each request is in the index by the next build that finishes.
 
 You can also start a run by hand from the Actions tab, to rebuild from the pins as they are.
