@@ -186,7 +186,11 @@ def lock(root: Path) -> None:
         if pin is None or not pin["ref"]:
             raise SystemExit(f"lib-lock.json pins {name!r}, which pins.json does not")
         if pin["repository"] != entry["repository"]:
-            raise SystemExit(f"{name}: pins.json says {pin['repository']}, lib-lock.json says {entry['repository']}")
+            # A root released before a package moved still names its old
+            # repository: pins.json lists that as the package's "formerly".
+            if entry["repository"] not in pin.get("formerly", ()):
+                raise SystemExit(f"{name}: pins.json says {pin['repository']}, lib-lock.json says {entry['repository']}")
+            entry["repository"] = pin["repository"]
         entry["ref"] = pin["ref"]
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
