@@ -121,6 +121,9 @@ jobs:
 
   deploy:
     needs: build
+    # Like build: a rebuild from the pins as they are skips record, and a job
+    # with a skipped job anywhere upstream is skipped too unless it says so.
+    if: ${{ !failure() && !cancelled() && needs.build.result == 'success' }}
     # The same queue as the build, so two deploys never overlap.
     concurrency:
       group: omnipython-lib-publication-queue
