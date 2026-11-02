@@ -32,5 +32,9 @@
     "formerly": [
       "PyDevices/audiocomponents"
     ]
+  },
+  "applibs": {
+    "repository": "PyDevices/apps",
+    "ref": "v0.1.0"
   }
 }

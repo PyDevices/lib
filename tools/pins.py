@@ -5,14 +5,15 @@
 
 * ``pydevices`` is the release of the library repository (tag ``vX.Y.Z``)
   that supplies every package living there: pydevices, pydevices-desktop,
-  bledev, midiports, the usb-* packages, every board config and driver, and
-  appkit.
+  bledev, midiports, the usb-* packages, and every board config and driver.
 * ``palettes`` and ``pdwidgets`` are releases of those two folders
   (``palettes-vX.Y.Z``, ``pdwidgets-vX.Y.Z``), which release on their own
   trains. When pinned, that tag's folder replaces the one in the
   ``pydevices`` checkout.
-* ``pygraphics``, ``audioinstruments`` and ``audioeffects`` are releases of
-  repositories of their own.
+* ``pygraphics``, ``audioinstruments``, ``audioeffects`` and ``applibs`` are
+  releases of repositories of their own. ``applibs`` comes from the apps
+  repository and publishes appkit, controlkit and the other libraries apps
+  share, each as its own package.
 * ``boards`` is a commit, not a release: a merge to the library repository's
   main branch that touched ``board_configs/`` or ``drivers/``. When pinned,
   that commit's two folders replace the ones in the ``pydevices`` checkout, so
