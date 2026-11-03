@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
+# SPDX-License-Identifier: MIT
+
 """tools/pins.py: applying a request to pins.json, and recording it on main.
 
 Everything runs against throwaway git repositories; nothing is fetched.
