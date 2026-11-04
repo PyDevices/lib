@@ -8,7 +8,7 @@ A release in any of the source repositories sends this repository a request nami
 
 ## pins.json, then a build
 
-[`publish.yml`](../../.github/workflows/publish.yml) records each request in [`pins.json`](../../pins.json) as soon as it arrives. It then rebuilds every package from the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the result to GitHub Pages. Before it deploys, the build checks that no package name here is also one of micropython-lib's, because `omip` looks here first and a match would hide theirs. If micropython-lib's index can't be read, the build warns and carries on.
+[`publish.yml`](../../.github/workflows/publish.yml) records each request in [`pins.json`](../../pins.json) as soon as it arrives. It then rebuilds every package from the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the result to GitHub Pages.
 
 When a package moves to a new repository, its entry in `pins.json` names the new one and lists the old under `formerly`. A pydevices release made before the move still names the old repository in its `lib-lock.json`; the build takes the package from the new one at the pinned tag.
 

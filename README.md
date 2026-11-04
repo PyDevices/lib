@@ -9,17 +9,11 @@ The `mip` index for OmniPython's libraries, board configs and drivers, at **http
 On a board with Wi-Fi, in the REPL:
 
 ```python
-import omip
-omip.install("pydevices")
+import mip
+mip.install("pydevices", index="https://pydevices.github.io/lib")
 ```
 
-`omip` gets the board online if it isn't, and brings what a package needs from micropython-lib. If `import omip` fails, your firmware doesn't have it yet, so copy it on from a computer:
-
-```bash
-mpremote mip install github:PyDevices/pydevices/lib/omip.py
-```
-
-From a computer, onto a board on USB, with no Wi-Fi at all:
+From a computer, onto a board on USB:
 
 ```bash
 mpremote mip install --index https://pydevices.github.io/lib pydevices
