@@ -13,6 +13,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -214,3 +216,40 @@ class Locking(unittest.TestCase):
                 {"repository": "PyDevices/audioinstruments", "ref": "v0.5.0", "formerly": ["PyDevices/audiocomponents"]},
                 {"repository": "PyDevices/somewhere-else", "ref": "v0.4.0"},
             )
+
+
+class Overlap(unittest.TestCase):
+    """overlap compares a built index with an upstream one, here a folder served from this machine."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.index = self.dir / "index"
+        (self.index / "untested").mkdir(parents=True)
+        (self.index / "index.json").write_text(json.dumps({"packages": [{"name": "bledev"}]}))
+        (self.index / "untested" / "index.json").write_text(json.dumps({"packages": [{"name": "bledev"}, {"name": "gt911"}]}))
+        self.upstream = self.dir / "upstream"
+        self.upstream.mkdir()
+
+    def theirs(self, *names):
+        (self.upstream / "index.json").write_text(json.dumps({"packages": [{"name": n} for n in names]}))
+        return self.upstream.as_uri()
+
+    def test_no_shared_name_passes(self):
+        with redirect_stdout(StringIO()) as out:
+            pins.overlap(self.index, self.theirs("aioble", "sdcard"))
+        self.assertIn("none shared", out.getvalue())
+
+    def test_a_shared_name_fails_and_names_it(self):
+        with self.assertRaisesRegex(SystemExit, "bledev"):
+            pins.overlap(self.index, self.theirs("aioble", "bledev"))
+
+    def test_a_name_only_on_the_untested_index_counts(self):
+        with self.assertRaisesRegex(SystemExit, "gt911"):
+            pins.overlap(self.index, self.theirs("gt911"))
+
+    def test_an_unreadable_upstream_warns_and_passes(self):
+        with redirect_stdout(StringIO()) as out:
+            pins.overlap(self.index, (self.dir / "not-there").as_uri())
+        self.assertIn("::warning::", out.getvalue())

@@ -32,8 +32,9 @@ request arrives, before the request waits its turn to build, so a request that
 GitHub later replaces in the queue is still in ``pins.json`` for the build
 that replaces it.
 ``fetch`` checks the pinned sources out, ``lock`` writes the pinned tags into
-the checkout's ``lib-lock.json`` for its builder, and ``verify`` checks a built
-index has every package at the version pinned.
+the checkout's ``lib-lock.json`` for its builder, ``verify`` checks a built
+index has every package at the version pinned, and ``overlap`` checks that none
+of its names is also one of micropython-lib's.
 
 Standard library and git only.
 """
@@ -47,9 +48,13 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
 PINS = Path(__file__).resolve().parent.parent / "pins.json"
+
+#: micropython-lib's index, whose names ours must not share.
+UPSTREAM_INDEX = "https://micropython.org/pi/v2"
 
 #: Profiles whose tag names a folder of the library repository.
 FOLDER_PROFILES = ("palettes", "pdwidgets")
@@ -231,6 +236,35 @@ def verify(index: Path) -> None:
     print("the index matches pins.json")
 
 
+def package_names(index: Path) -> set[str]:
+    """Every package name a built index publishes, its untested index included."""
+    names: set[str] = set()
+    for path in (index / "index.json", index / "untested" / "index.json"):
+        if path.is_file():
+            names.update(p["name"] for p in json.loads(path.read_text(encoding="utf-8"))["packages"])
+    return names
+
+
+def overlap(index: Path, upstream: str = UPSTREAM_INDEX) -> None:
+    """No package here is named as one of micropython-lib's.
+
+    omip looks here first, so a shared name would hide theirs. Failing to read
+    their index only warns: their outage shouldn't hold up a release of ours.
+    """
+    url = f"{upstream.rstrip('/')}/index.json"
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            theirs = {p["name"] for p in json.loads(response.read())["packages"]}
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"::warning::can't read {url}, so names weren't compared with micropython-lib's: {exc}")
+        return
+    ours = package_names(index)
+    shared = sorted(ours & theirs)
+    if shared:
+        raise SystemExit(f"these package names are micropython-lib's too, and omip would hide theirs: {', '.join(shared)}")
+    print(f"{len(ours)} package names here, {len(theirs)} in micropython-lib, none shared")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
@@ -249,6 +283,9 @@ def main() -> None:
     k.add_argument("root", type=Path)
     v = commands.add_parser("verify", help="check a built index against pins.json")
     v.add_argument("index", type=Path)
+    o = commands.add_parser("overlap", help="check a built index's names against micropython-lib's")
+    o.add_argument("index", type=Path)
+    o.add_argument("--upstream", default=UPSTREAM_INDEX)
     args = parser.parse_args()
     if args.command == "apply":
         apply(args.profile, args.repository, args.ref)
@@ -258,6 +295,8 @@ def main() -> None:
         fetch(args.out, args.root_ref)
     elif args.command == "lock":
         lock(args.root)
+    elif args.command == "overlap":
+        overlap(args.index, args.upstream)
     else:
         verify(args.index)
 
