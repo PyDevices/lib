@@ -1,17 +1,45 @@
 # Install a package
 
-Every install names the index: `https://pydevices.github.io/lib`. [What's in the index](../reference/packages.md) lists the packages.
+[What's in the index](../reference/packages.md) lists the packages.
 
 ## On a board with Wi-Fi
 
-Connect to your network, then in the REPL:
+In the REPL:
+
+```python
+import omip
+omip.install("pydevices")
+```
+
+If the board is offline, `omip` joins the network in `secrets.py` or `settings.toml`, and with neither it asks you, saving what you type only if you say so. It looks for the package here and then on micropython-lib, and brings what the package needs from both. It takes the arguments of `mip.install`, so `omip.install("pydevices", mpy=False)` gets `.py` source instead of `.mpy` files for your board's bytecode version.
+
+If it can't finish, `omip` raises `OSError`. A program with no one at the REPL passes `prompt=False`, so it never waits for an answer.
+
+### Getting omip
+
+Firmware that freezes pydevices has it, once its pydevices release does. On any other MicroPython firmware, copy the one file on from a computer:
+
+```bash
+mpremote mip install github:PyDevices/pydevices/lib/omip.py
+```
+
+Or, on a board that's already online:
+
+```python
+import mip
+mip.install("github:PyDevices/pydevices/lib/omip.py")
+```
+
+On CircuitPython, copy [`omip.py`](https://github.com/PyDevices/pydevices/blob/main/lib/omip.py) to `lib/` on the CIRCUITPY drive. To let `import mip` work there too, copy [`mip.py`](https://github.com/PyDevices/pydevices/blob/main/board_configs/cp/mip.py) beside it; don't put that file on MicroPython, whose own `mip` it would hide. Installing on the board needs a writable drive, which `omip` explains if it isn't, and `aioble` and the other micropython-lib packages are left out, because CircuitPython's libraries come from `circup`.
+
+## With plain mip
+
+Every `mip` install names the index, and you connect to your network first:
 
 ```python
 import mip
 mip.install("pydevices", index="https://pydevices.github.io/lib")
 ```
-
-You get `.mpy` files for the MicroPython bytecode version your board runs, or `.py` source with `mpy=False`.
 
 ## From a computer, onto a board on USB
 
@@ -37,7 +65,7 @@ mip.install("esp32-s3-touch-lcd-7", index="https://pydevices.github.io/lib")
 
 ## Packages from micropython-lib
 
-Packages that come from [micropython-lib](https://github.com/micropython/micropython-lib) (`aioble`, `sdcard`, `bmi270`, `usb-device-*`) aren't copied here. `mip` takes every file of a package from the one index it was given, so install those from the default index first, then ours:
+Packages that come from [micropython-lib](https://github.com/micropython/micropython-lib) (`aioble`, `sdcard`, `bmi270`, `usb-device-*`) aren't copied here. A package that needs one names it under `upstream` in its JSON, and `omip` brings it. `mip` and `mpremote` ignore that key, because they take every file of a package from the one index they were given, so with them install those from the default index first, then ours:
 
 ```python
 mip.install("aioble")

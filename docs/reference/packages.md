@@ -12,4 +12,4 @@ The packages come from these repositories:
 
 A board config's package is named after its folder in [board_configs](https://github.com/PyDevices/pydevices/tree/main/board_configs), and a driver's after its folder in [drivers](https://github.com/PyDevices/pydevices/tree/main/drivers).
 
-Packages from micropython-lib aren't here; [install those first](../get-started/install.md#packages-from-micropython-lib) from the default index.
+Packages from micropython-lib aren't here, and no package here has a name micropython-lib uses: the build fails if one does, so neither can hide the other. `omip` brings them; with `mip`, [install those first](../get-started/install.md#packages-from-micropython-lib) from the default index.
