@@ -112,6 +112,9 @@ jobs:
       - name: Check the index against the pins
         run: python tools/pins.py verify build/index
 
+      - name: Check no package name is also micropython-lib's
+        run: python tools/pins.py overlap build/index
+
       - name: Prepare the Pages artifact
         run: touch build/index/.nojekyll
 
