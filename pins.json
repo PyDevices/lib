@@ -1,11 +1,11 @@
 {
   "pydevices": {
     "repository": "PyDevices/pydevices",
-    "ref": "v0.8.0.dev1"
+    "ref": "v0.8.0.dev2"
   },
   "boards": {
     "repository": "PyDevices/pydevices",
-    "ref": "95fb55141dea116ddfac569c539b2e8a19fe8ad0"
+    "ref": null
   },
   "palettes": {
     "repository": "PyDevices/pydevices",
