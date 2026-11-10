@@ -23,6 +23,10 @@ name: Publish the index
 # that commit's two folders over the pinned pydevices release (tools/pins.py),
 # so a board or driver is published when it merges. The next pydevices release
 # clears the pin.
+#
+# Every build also copies the Adafruit bundle release pinned as `adafruit` to
+# adafruit/, for omip on CircuitPython (tools/adafruit.py). adafruit-refresh.yml
+# asks for a run with each new bundle release.
 
 on:
   repository_dispatch:
@@ -31,7 +35,7 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Profile to record (pydevices, boards, palettes, pdwidgets, pygraphics, audioinstruments, audioeffects, applibs). Empty rebuilds from the pins as they are.
+        description: Profile to record (pydevices, boards, palettes, pdwidgets, pygraphics, audioinstruments, audioeffects, applibs, adafruit). Empty rebuilds from the pins as they are.
         default: ""
         type: string
       repository:
@@ -39,7 +43,7 @@ on:
         default: ""
         type: string
       ref:
-        description: Release tag to record (a full commit hash for the boards profile)
+        description: Release tag to record (a full commit hash for the boards profile, YYYYMMDD for adafruit)
         default: ""
         type: string
       test-root-ref:
@@ -108,6 +112,20 @@ jobs:
 
       - name: Build the index
         run: python src/tools/libbuild.py build --root src --out build --base-url "${{ steps.pages.outputs.base_url }}"
+
+      - name: Read the pinned Adafruit bundle
+        id: adafruit
+        run: echo "tag=$(python -c 'import json; print(json.load(open("pins.json"))["adafruit"]["ref"])')" >> "$GITHUB_OUTPUT"
+
+      # The bundle's files and the license texts, kept per release, so a
+      # rebuild of the same one downloads nothing.
+      - uses: actions/cache@v6
+        with:
+          path: adafruit-cache
+          key: adafruit-bundle-${{ steps.adafruit.outputs.tag }}
+
+      - name: Copy Adafruit's bundle
+        run: python tools/adafruit.py build --tag "${{ steps.adafruit.outputs.tag }}" --cache adafruit-cache --out build/index/adafruit
 
       - name: Check the index against the pins
         run: python tools/pins.py verify build/index

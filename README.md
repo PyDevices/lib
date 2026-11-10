@@ -13,7 +13,7 @@ import omip
 omip.install("pydevices")
 ```
 
-`omip` gets the board online if it isn't, and brings what a package needs from micropython-lib. If `import omip` fails, your firmware doesn't have it yet, so copy it on from a computer:
+`omip` gets the board online if it isn't, and brings what a package needs from micropython-lib. On CircuitPython it also finds Adafruit's libraries, from a copy of Adafruit's library bundle kept here, so `omip.install("adafruit_display_text")` does what `circup` would. If `import omip` fails, your firmware doesn't have it yet, so copy it on from a computer:
 
 ```bash
 mpremote mip install github:PyDevices/pydevices/lib/omip.py

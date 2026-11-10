@@ -36,5 +36,9 @@
   "applibs": {
     "repository": "PyDevices/apps",
     "ref": "v0.1.2.dev1"
+  },
+  "adafruit": {
+    "repository": "adafruit/Adafruit_CircuitPython_Bundle",
+    "ref": "20261110"
   }
 }
