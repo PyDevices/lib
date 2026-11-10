@@ -1,7 +1,7 @@
 {
   "pydevices": {
     "repository": "PyDevices/pydevices",
-    "ref": "v0.8.0.dev5"
+    "ref": "v0.8.0.dev6"
   },
   "boards": {
     "repository": "PyDevices/pydevices",
