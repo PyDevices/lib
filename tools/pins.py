@@ -23,6 +23,10 @@
   that commit's two folders replace the ones in the ``pydevices`` checkout, so
   a board or driver is published when it merges, over the core of the last
   release. The next ``pydevices`` release clears the pin.
+* ``adafruit`` is a release of Adafruit's CircuitPython library bundle (its
+  tag is a date, ``YYYYMMDD``). ``tools/adafruit.py`` copies it to the
+  ``adafruit/`` folder of the index, for omip on CircuitPython. A scheduled
+  run records each new one.
 
 A publication request names a profile, the repository it came from and the
 tag (the commit, for ``boards``). ``apply`` checks them against ``pins.json``
@@ -65,6 +69,10 @@ BOARDS_PROFILE = "boards"
 BOARDS_FOLDERS = ("board_configs", "drivers")
 COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
+#: The profile that is Adafruit's bundle, copied to the index's adafruit/ folder.
+ADAFRUIT_PROFILE = "adafruit"
+DATE_TAG = re.compile(r"^[0-9]{8}$")
+
 TAG = re.compile(r"^(?:(?:palettes|pdwidgets)-)?v[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+|\.dev[0-9]+)?$")
 
 
@@ -86,6 +94,13 @@ def apply(profile: str, repository: str, ref: str) -> None:
     if profile == BOARDS_PROFILE:
         if not COMMIT.match(ref):
             raise SystemExit(f"profile {profile!r} takes a full commit hash, not {ref!r}")
+        pins[profile]["ref"] = ref
+        save(pins)
+        print(f"{profile} -> {ref}")
+        return
+    if profile == ADAFRUIT_PROFILE:
+        if not DATE_TAG.match(ref):
+            raise SystemExit(f"profile {profile!r} takes a bundle release tag, YYYYMMDD, not {ref!r}")
         pins[profile]["ref"] = ref
         save(pins)
         print(f"{profile} -> {ref}")
@@ -113,6 +128,8 @@ def _git(*args: str, cwd: Path | None = None) -> None:
 def _message(profile: str, repository: str, ref: str) -> str:
     if profile == BOARDS_PROFILE:
         return f"Publish boards and drivers from {repository.split('/')[-1]} {ref[:12]}"
+    if profile == ADAFRUIT_PROFILE:
+        return f"Publish Adafruit's bundle {ref}"
     return f"Publish {repository.split('/')[-1]} {ref}"
 
 
@@ -216,6 +233,16 @@ def verify(index: Path) -> None:
             # numbers of the release under them.
             if pin["ref"]:
                 print(f"  boards and drivers from {pin['ref'][:12]}")
+            continue
+        if name == ADAFRUIT_PROFILE:
+            copied = index / "adafruit" / "index.json"
+            if not copied.is_file():
+                bad.append(f"{name}: no adafruit/index.json")
+                continue
+            got = json.loads(copied.read_text(encoding="utf-8"))["bundle"]
+            if got != pin["ref"]:
+                bad.append(f"{name}: index has bundle {got}, pins.json says {pin['ref']}")
+            print(f"  adafruit bundle {got}")
             continue
         if name in FOLDER_PROFILES or name == "pydevices":
             want = None

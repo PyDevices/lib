@@ -1,0 +1,39 @@
+# Asks publish.yml to copy each new release of Adafruit's CircuitPython library
+# bundle, so omip on CircuitPython finds what circup would. The bundle releases
+# when any of its libraries does, often several times a week.
+name: Refresh Adafruit's bundle
+
+on:
+  schedule:
+    - cron: '23 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Ask for a publish when the bundle has a newer release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          newest=$(python tools/adafruit.py latest)
+          pinned=$(python -c 'import json; print(json.load(open("pins.json"))["adafruit"]["ref"])')
+          if [ "$newest" = "$pinned" ]; then
+            echo "pins.json already has the newest bundle, $newest."
+            exit 0
+          fi
+          echo "bundle $pinned -> $newest"
+          gh workflow run publish.yml --ref main -f profile=adafruit \
+            -f repository=adafruit/Adafruit_CircuitPython_Bundle -f ref="$newest"

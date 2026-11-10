@@ -12,6 +12,10 @@ A release in any of the source repositories sends this repository a request nami
 
 When a package moves to a new repository, its entry in `pins.json` names the new one and lists the old under `formerly`. A pydevices release made before the move still names the old repository in its `lib-lock.json`; the build takes the package from the new one at the pinned tag.
 
+## Adafruit's bundle
+
+Each build also copies one release of [Adafruit's CircuitPython library bundle](https://github.com/adafruit/Adafruit_CircuitPython_Bundle), the one `pins.json` names under `adafruit`, to `adafruit/` with [`tools/adafruit.py`](../../tools/adafruit.py). It has a folder of `.mpy` files for each CircuitPython major version the release has (`package/10.x/`, for example), each library's license text under `license/`, and an `index.json` naming the release. A library under a license other than a permissive one is copied as its Python source. [`adafruit-refresh.yml`](../../.github/workflows/adafruit-refresh.yml) checks for a newer bundle release every day and requests a build when there is one.
+
 Builds queue, one at a time, and a newer build can replace one that's still waiting. Nothing is lost when that happens: every build starts from the pins as recorded so far, so each request is in the index by the next build that finishes.
 
 You can also start a run by hand from the Actions tab, to rebuild from the pins as they are.

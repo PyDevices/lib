@@ -32,6 +32,7 @@ PINS = {
     "palettes": {"repository": "PyDevices/pydevices", "ref": "palettes-v0.0.15rc1"},
     "pdwidgets": {"repository": "PyDevices/pydevices", "ref": None},
     "pygraphics": {"repository": "PyDevices/pygraphics", "ref": "v0.1.0"},
+    "adafruit": {"repository": "adafruit/Adafruit_CircuitPython_Bundle", "ref": "20261101"},
 }
 
 
@@ -87,9 +88,55 @@ class Applying(Checkout):
                      ("pydevices", "PyDevices/pydevices", BOARDS),
                      ("palettes", "PyDevices/pydevices", "v0.0.15"),
                      ("pygraphics", "PyDevices/pydevices", "v0.1.1"),
-                     ("nothing", "PyDevices/pydevices", "v0.7.7")):
+                     ("nothing", "PyDevices/pydevices", "v0.7.7"),
+                     ("adafruit", "adafruit/Adafruit_CircuitPython_Bundle", "v0.7.7"),
+                     ("adafruit", "PyDevices/pydevices", "20261110"),
+                     ("pydevices", "PyDevices/pydevices", "20261110")):
             with self.assertRaises(SystemExit, msg=args):
                 pins.apply(*args)
+
+    def test_adafruits_bundle_takes_its_date_tag(self):
+        self.use(self.clone("a"))
+        pins.apply("adafruit", "adafruit/Adafruit_CircuitPython_Bundle", "20261110")
+        self.assertEqual(pins.load()["adafruit"]["ref"], "20261110")
+        self.assertEqual(pins._message("adafruit", "adafruit/Adafruit_CircuitPython_Bundle", "20261110"), "Publish Adafruit's bundle 20261110")
+
+
+class Verifying(unittest.TestCase):
+    """verify() checks a built index against pins.json, the copy of Adafruit's bundle included."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.saved = pins.PINS
+        self.addCleanup(lambda: setattr(pins, "PINS", self.saved))
+        pins.PINS = self.dir / "pins.json"
+        pins.save({"pygraphics": {"repository": "PyDevices/pygraphics", "ref": "v0.1.0"},
+                   "adafruit": {"repository": "adafruit/Adafruit_CircuitPython_Bundle", "ref": "20261110"}})
+        self.index = self.dir / "index"
+        latest = self.index / "package" / "py" / "pygraphics" / "latest.json"
+        latest.parent.mkdir(parents=True)
+        latest.write_text(json.dumps({"version": "0.1.0"}))
+
+    def bundle(self, tag):
+        (self.index / "adafruit").mkdir(exist_ok=True)
+        (self.index / "adafruit" / "index.json").write_text(json.dumps({"bundle": tag, "packages": []}))
+
+    def test_the_pinned_bundle_passes(self):
+        self.bundle("20261110")
+        with redirect_stdout(StringIO()) as out:
+            pins.verify(self.index)
+        self.assertIn("adafruit bundle 20261110", out.getvalue())
+
+    def test_another_bundle_fails(self):
+        self.bundle("20261101")
+        with redirect_stdout(StringIO()), self.assertRaisesRegex(SystemExit, "bundle 20261101"):
+            pins.verify(self.index)
+
+    def test_no_copy_fails(self):
+        with redirect_stdout(StringIO()), self.assertRaisesRegex(SystemExit, "no adafruit/index.json"):
+            pins.verify(self.index)
 
 
 class Recording(Checkout):
