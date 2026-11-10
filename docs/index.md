@@ -1,6 +1,6 @@
 # lib
 
-The `mip` index for OmniPython's libraries, board configs and drivers, at `https://pydevices.github.io/lib`. This address is temporary: the index will move to `lib.omnipython.org`, and this one will redirect there.
+The `mip` index for OmniPython's libraries, board configs and drivers, at `https://lib.omnipython.org`.
 
 ## Get started
 

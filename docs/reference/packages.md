@@ -1,6 +1,6 @@
 # What's in the index
 
-The live list, with each package's version and description, is the index's own page: <https://pydevices.github.io/lib/>. The same data is in [`index.json`](https://pydevices.github.io/lib/index.json), and the untested index has its own at [`untested/index.json`](https://pydevices.github.io/lib/untested/index.json).
+The live list, with each package's version and description, is the index's own page: <https://lib.omnipython.org/>. The same data is in [`index.json`](https://lib.omnipython.org/index.json), and the untested index has its own at [`untested/index.json`](https://lib.omnipython.org/untested/index.json).
 
 The packages come from these repositories:
 

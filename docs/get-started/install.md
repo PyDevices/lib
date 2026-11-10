@@ -38,7 +38,7 @@ Every `mip` install names the index, and you connect to your network first:
 
 ```python
 import mip
-mip.install("pydevices", index="https://pydevices.github.io/lib")
+mip.install("pydevices", index="https://lib.omnipython.org")
 ```
 
 ## From a computer, onto a board on USB
@@ -46,13 +46,13 @@ mip.install("pydevices", index="https://pydevices.github.io/lib")
 `mpremote` fetches the package on your computer and copies it over, so the board needs no network:
 
 ```bash
-mpremote mip install --index https://pydevices.github.io/lib pydevices
+mpremote mip install --index https://lib.omnipython.org pydevices
 ```
 
 ## With the unix port
 
 ```bash
-micropython -m mip install --index https://pydevices.github.io/lib --target lib pydevices
+micropython -m mip install --index https://lib.omnipython.org --target lib pydevices
 ```
 
 ## A whole board config
@@ -60,7 +60,7 @@ micropython -m mip install --index https://pydevices.github.io/lib --target lib 
 A board config installs by the name of its folder in [board_configs](https://github.com/PyDevices/pydevices/tree/main/board_configs), for example `esp32-s3-touch-lcd-7`. It brings its drivers and `pydevices` with it:
 
 ```python
-mip.install("esp32-s3-touch-lcd-7", index="https://pydevices.github.io/lib")
+mip.install("esp32-s3-touch-lcd-7", index="https://lib.omnipython.org")
 ```
 
 ## Packages from micropython-lib
@@ -69,5 +69,5 @@ Packages that come from [micropython-lib](https://github.com/micropython/micropy
 
 ```python
 mip.install("aioble")
-mip.install("bledev", index="https://pydevices.github.io/lib")
+mip.install("bledev", index="https://lib.omnipython.org")
 ```
