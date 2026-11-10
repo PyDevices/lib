@@ -21,7 +21,7 @@
   },
   "audioinstruments": {
     "repository": "PyDevices/audioinstruments",
-    "ref": "v0.5.2.dev1",
+    "ref": "v0.5.2.dev2",
     "formerly": [
       "PyDevices/audiocomponents"
     ]
