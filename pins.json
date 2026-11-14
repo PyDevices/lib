@@ -5,7 +5,7 @@
   },
   "boards": {
     "repository": "PyDevices/pydevices",
-    "ref": null
+    "ref": "0d9005e265cd09f5867f833c9f13a83fe636cfb0"
   },
   "palettes": {
     "repository": "PyDevices/pydevices",
