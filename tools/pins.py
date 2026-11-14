@@ -198,9 +198,21 @@ def fetch(out: Path, root_ref: str | None) -> None:
         print(f"  {name}/ from {pin['repository']} @ {folder_ref}")
         source = scratch / name
         _fetch(pin["repository"], folder_ref, source)
-        shutil.rmtree(out / name, ignore_errors=True)
-        shutil.copytree(source / name, out / name, ignore=shutil.ignore_patterns(".git"))
+        destination = _package_folder(out, name)
+        shutil.rmtree(destination, ignore_errors=True)
+        shutil.copytree(_package_folder(source, name), destination, ignore=shutil.ignore_patterns(".git"))
     shutil.rmtree(scratch, ignore_errors=True)
+
+
+def _package_folder(checkout: Path, name: str) -> Path:
+    """Where a checkout of the library repository keeps a folder package.
+
+    Releases from 2026-11-02 on keep it under ``packages/``; earlier ones at the
+    top. A pinned folder is read from wherever its tag keeps it and laid where
+    the pinned release keeps it, which is where its builder looks.
+    """
+    nested = checkout / "packages" / name
+    return nested if nested.is_dir() or (checkout / "packages").is_dir() else checkout / name
 
 
 def lock(root: Path) -> None:

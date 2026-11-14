@@ -265,6 +265,27 @@ class Locking(unittest.TestCase):
             )
 
 
+class FolderLayout(unittest.TestCase):
+    """A pinned folder package is found under packages/ or at the top."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+
+    def test_a_release_with_packages_keeps_the_folder_there(self):
+        (self.dir / "packages" / "palettes").mkdir(parents=True)
+        self.assertEqual(pins._package_folder(self.dir, "palettes"), self.dir / "packages" / "palettes")
+
+    def test_a_release_with_packages_lays_a_missing_folder_there(self):
+        (self.dir / "packages").mkdir()
+        self.assertEqual(pins._package_folder(self.dir, "palettes"), self.dir / "packages" / "palettes")
+
+    def test_an_older_release_keeps_it_at_the_top(self):
+        (self.dir / "palettes").mkdir()
+        self.assertEqual(pins._package_folder(self.dir, "palettes"), self.dir / "palettes")
+
+
 class Overlap(unittest.TestCase):
     """overlap compares a built index with an upstream one, here a folder served from this machine."""
 
