@@ -9,7 +9,7 @@
   },
   "palettes": {
     "repository": "PyDevices/pydevices",
-    "ref": "palettes-v0.0.15"
+    "ref": "palettes-v0.0.16.dev0"
   },
   "pdwidgets": {
     "repository": "PyDevices/pydevices",
