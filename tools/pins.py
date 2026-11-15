@@ -10,9 +10,9 @@
 * ``pydevices`` is the release of the library repository (tag ``vX.Y.Z``)
   that supplies every package living there: pydevices, pydevices-desktop,
   bledev, midiports, the usb-* packages, and every board config and driver.
-* ``palettes`` and ``pdwidgets`` are releases of those two folders
-  (``palettes-vX.Y.Z``, ``pdwidgets-vX.Y.Z``), which release on their own
-  trains. When pinned, that tag's folder replaces the one in the
+* ``palettes``, ``pdwidgets`` and ``iconkit`` are releases of those
+  folders (``palettes-vX.Y.Z``, ``pdwidgets-vX.Y.Z``, ``iconkit-vX.Y.Z``),
+  which release on their own trains. When pinned, that tag's folder replaces the one in the
   ``pydevices`` checkout.
 * ``pygraphics``, ``audioinstruments``, ``audioeffects`` and ``applibs`` are
   releases of repositories of their own. ``applibs`` comes from the apps
@@ -61,7 +61,7 @@ PINS = Path(__file__).resolve().parent.parent / "pins.json"
 UPSTREAM_INDEX = "https://micropython.org/pi/v2"
 
 #: Profiles whose tag names a folder of the library repository.
-FOLDER_PROFILES = ("palettes", "pdwidgets")
+FOLDER_PROFILES = ("palettes", "pdwidgets", "iconkit")
 
 #: The profile whose ref is a commit of the library repository, and the
 #: folders that commit supplies over the pinned release.
@@ -73,7 +73,7 @@ COMMIT = re.compile(r"^[0-9a-f]{40}$")
 ADAFRUIT_PROFILE = "adafruit"
 DATE_TAG = re.compile(r"^[0-9]{8}$")
 
-TAG = re.compile(r"^(?:(?:palettes|pdwidgets)-)?v[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+|\.dev[0-9]+)?$")
+TAG = re.compile(r"^(?:(?:palettes|pdwidgets|iconkit)-)?v[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+|\.dev[0-9]+)?$")
 
 
 def load() -> dict:

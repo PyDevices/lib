@@ -13,7 +13,11 @@
   },
   "pdwidgets": {
     "repository": "PyDevices/pydevices",
-    "ref": "pdwidgets-v0.0.25"
+    "ref": null
+  },
+  "iconkit": {
+    "repository": "PyDevices/pydevices",
+    "ref": "iconkit-v0.1.0.dev1"
   },
   "pygraphics": {
     "repository": "PyDevices/pygraphics",
