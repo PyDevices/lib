@@ -31,6 +31,7 @@ PINS = {
     "boards": {"repository": "PyDevices/pydevices", "ref": None},
     "palettes": {"repository": "PyDevices/pydevices", "ref": "palettes-v0.0.15rc1"},
     "pdwidgets": {"repository": "PyDevices/pydevices", "ref": None},
+    "iconkit": {"repository": "PyDevices/pydevices", "ref": None},
     "pygraphics": {"repository": "PyDevices/pygraphics", "ref": "v0.1.0"},
     "adafruit": {"repository": "adafruit/Adafruit_CircuitPython_Bundle", "ref": "20261101"},
 }
@@ -92,6 +93,19 @@ class Applying(Checkout):
                      ("adafruit", "adafruit/Adafruit_CircuitPython_Bundle", "v0.7.7"),
                      ("adafruit", "PyDevices/pydevices", "20261110"),
                      ("pydevices", "PyDevices/pydevices", "20261110")):
+            with self.assertRaises(SystemExit, msg=args):
+                pins.apply(*args)
+
+    def test_a_folder_release_pins_its_own_profile(self):
+        self.use(self.clone("a"))
+        pins.apply("iconkit", "PyDevices/pydevices", "iconkit-v0.1.0.dev1")
+        self.assertEqual(pins.load()["iconkit"]["ref"], "iconkit-v0.1.0.dev1")
+
+    def test_a_folder_profile_refuses_another_folders_tag(self):
+        self.use(self.clone("a"))
+        for args in (("iconkit", "PyDevices/pydevices", "palettes-v0.0.16"),
+                     ("iconkit", "PyDevices/pydevices", "v0.1.0"),
+                     ("pydevices", "PyDevices/pydevices", "iconkit-v0.1.0")):
             with self.assertRaises(SystemExit, msg=args):
                 pins.apply(*args)
 
@@ -321,3 +335,13 @@ class Overlap(unittest.TestCase):
         with redirect_stdout(StringIO()) as out:
             pins.overlap(self.index, (self.dir / "not-there").as_uri())
         self.assertIn("::warning::", out.getvalue())
+
+
+class ShippedPins(unittest.TestCase):
+    def test_every_folder_profile_is_in_pins_json_with_a_matching_tag(self):
+        shipped = json.loads((ROOT / "pins.json").read_text(encoding="utf-8"))
+        for name in pins.FOLDER_PROFILES:
+            self.assertIn(name, shipped)
+            ref = shipped[name]["ref"]
+            if ref:
+                self.assertTrue(ref.startswith(f"{name}-v") and pins.TAG.match(ref), ref)

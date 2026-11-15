@@ -35,7 +35,7 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Profile to record (pydevices, boards, palettes, pdwidgets, pygraphics, audioinstruments, audioeffects, applibs, adafruit). Empty rebuilds from the pins as they are.
+        description: Profile to record (pydevices, boards, palettes, pdwidgets, iconkit, pygraphics, audioinstruments, audioeffects, applibs, adafruit). Empty rebuilds from the pins as they are.
         default: ""
         type: string
       repository:

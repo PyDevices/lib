@@ -6,7 +6,7 @@ The packages come from these repositories:
 
 | From | Packages |
 | --- | --- |
-| [pydevices](https://github.com/PyDevices/pydevices) | `pydevices` (the display, audio, event and timing libraries), `pydevices-desktop`, `bledev`, `midiports`, `hmilink`, `appkit`, `sayso`, `palettes`, `pdwidgets`, the `usb-*` packages, every board config and every driver |
+| [pydevices](https://github.com/PyDevices/pydevices) | `pydevices` (the display, audio, event and timing libraries), `pydevices-desktop`, `bledev`, `midiports`, `hmilink`, `appkit`, `sayso`, `palettes`, `pdwidgets`, `iconkit`, the `usb-*` packages, every board config and every driver |
 | [pygraphics](https://github.com/PyDevices/pygraphics) | `pygraphics` |
 | [audiocomponents](https://github.com/PyDevices/audiocomponents) | `audioinstruments`, `audioeffects` |
 
