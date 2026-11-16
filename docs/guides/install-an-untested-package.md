@@ -9,4 +9,4 @@ mip.install("package-name", index="https://lib.omnipython.org/untested")
 
 The untested index carries the tested packages too, so a package's dependencies still resolve from the one index.
 
-If it works on your board, say so: pydevices' [CONTRIBUTING.md](https://github.com/PyDevices/pydevices/blob/main/CONTRIBUTING.md) says how a board or driver becomes tested, and how to add one.
+If it works on your board, say so: omnipython's [CONTRIBUTING.md](https://github.com/PyDevices/omnipython/blob/main/CONTRIBUTING.md) says how a board or driver becomes tested, and how to add one.

@@ -7,22 +7,22 @@
 
 ``pins.json`` names one entry per publication profile:
 
-* ``pydevices`` is the release of the library repository (tag ``vX.Y.Z``)
-  that supplies every package living there: pydevices, pydevices-desktop,
+* ``omnipython`` is the release of the library repository (tag ``vX.Y.Z``)
+  that supplies every package living there: omnipython, omnipython-desktop,
   bledev, midiports, the usb-* packages, and every board config and driver.
 * ``palettes``, ``pdwidgets`` and ``iconkit`` are releases of those
   folders (``palettes-vX.Y.Z``, ``pdwidgets-vX.Y.Z``, ``iconkit-vX.Y.Z``),
   which release on their own trains. When pinned, that tag's folder replaces the one in the
-  ``pydevices`` checkout.
+  ``omnipython`` checkout.
 * ``pygraphics``, ``audioinstruments``, ``audioeffects`` and ``applibs`` are
   releases of repositories of their own. ``applibs`` comes from the apps
   repository and publishes appkit, controlkit and the other libraries apps
   share, each as its own package.
 * ``boards`` is a commit, not a release: a merge to the library repository's
   main branch that touched ``board_configs/`` or ``drivers/``. When pinned,
-  that commit's two folders replace the ones in the ``pydevices`` checkout, so
+  that commit's two folders replace the ones in the ``omnipython`` checkout, so
   a board or driver is published when it merges, over the core of the last
-  release. The next ``pydevices`` release clears the pin.
+  release. The next ``omnipython`` release clears the pin.
 * ``adafruit`` is a release of Adafruit's CircuitPython library bundle (its
   tag is a date, ``YYYYMMDD``). ``tools/adafruit.py`` copies it to the
   ``adafruit/`` folder of the index, for omip on CircuitPython. A scheduled
@@ -113,7 +113,7 @@ def apply(profile: str, repository: str, ref: str) -> None:
     if not prefix and ref.split("-")[0] in FOLDER_PROFILES:
         raise SystemExit(f"profile {profile!r} takes a plain vX.Y.Z tag, not {ref!r}")
     pins[profile]["ref"] = ref
-    if profile == "pydevices" and pins.get(BOARDS_PROFILE, {}).get("ref"):
+    if profile == "omnipython" and pins.get(BOARDS_PROFILE, {}).get("ref"):
         # A release carries every board and driver merged before it.
         print(f"{BOARDS_PROFILE} {pins[BOARDS_PROFILE]['ref'][:12]} -> released with {ref}")
         pins[BOARDS_PROFILE]["ref"] = None
@@ -172,10 +172,10 @@ def _fetch(repository: str, ref: str, destination: Path) -> None:
 def fetch(out: Path, root_ref: str | None) -> None:
     """Check out the library repository, then lay pinned folders over it."""
     pins = load()
-    root = pins["pydevices"]
+    root = pins["omnipython"]
     ref = root_ref or root["ref"]
     if not ref:
-        raise SystemExit("pins.json has no pydevices release yet; publish one first")
+        raise SystemExit("pins.json has no omnipython release yet; publish one first")
     if out.exists():
         shutil.rmtree(out)
     print(f"{root['repository']} @ {ref}")
@@ -256,7 +256,7 @@ def verify(index: Path) -> None:
                 bad.append(f"{name}: index has bundle {got}, pins.json says {pin['ref']}")
             print(f"  adafruit bundle {got}")
             continue
-        if name in FOLDER_PROFILES or name == "pydevices":
+        if name in FOLDER_PROFILES or name == "omnipython":
             want = None
             if pin["ref"]:
                 want = pin["ref"].split("-v", 1)[-1].removeprefix("v")

@@ -18,10 +18,10 @@ name: Publish the index
 # build that fails leaves its pin there, and the next build fails the same way
 # until the pin is fixed.)
 #
-# A merge to pydevices' main that touches board_configs/ or drivers/ sends the
+# A merge to omnipython's main that touches board_configs/ or drivers/ sends the
 # same dispatch with the `boards` profile and the merge commit. The run lays
-# that commit's two folders over the pinned pydevices release (tools/pins.py),
-# so a board or driver is published when it merges. The next pydevices release
+# that commit's two folders over the pinned omnipython release (tools/pins.py),
+# so a board or driver is published when it merges. The next omnipython release
 # clears the pin.
 #
 # Every build also copies the Adafruit bundle release pinned as `adafruit` to
@@ -35,7 +35,7 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Profile to record (pydevices, boards, palettes, pdwidgets, iconkit, pygraphics, audioinstruments, audioeffects, applibs, adafruit). Empty rebuilds from the pins as they are.
+        description: Profile to record (omnipython, boards, palettes, pdwidgets, iconkit, pygraphics, audioinstruments, audioeffects, applibs, adafruit). Empty rebuilds from the pins as they are.
         default: ""
         type: string
       repository:

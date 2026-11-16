@@ -10,19 +10,19 @@ On a board with Wi-Fi, in the REPL:
 
 ```python
 import omip
-omip.install("pydevices")
+omip.install("omnipython")
 ```
 
 `omip` gets the board online if it isn't, and brings what a package needs from micropython-lib. On CircuitPython it also finds Adafruit's libraries, from a copy of Adafruit's library bundle kept here, so `omip.install("adafruit_display_text")` does what `circup` would. If `import omip` fails, your firmware doesn't have it yet, so copy it on from a computer:
 
 ```bash
-mpremote mip install github:PyDevices/pydevices/lib/omip.py
+mpremote mip install github:PyDevices/omnipython/lib/omip.py
 ```
 
 From a computer, onto a board on USB, with no Wi-Fi at all:
 
 ```bash
-mpremote mip install --index https://lib.omnipython.org pydevices
+mpremote mip install --index https://lib.omnipython.org omnipython
 ```
 
 ## Try it
@@ -52,6 +52,6 @@ changed: Area(8, 8, 128, 64)
 
 ![hello.bmp: a red rounded rectangle, a green circle and the word Hello](docs/images/hello.png)
 
-[Docs](https://github.com/PyDevices/lib/blob/main/docs/index.md) · [Examples](https://pydevices.github.io/gallery/gallery/) · [Roadmap](ROADMAP.md)
+[Docs](https://github.com/PyDevices/lib/blob/main/docs/index.md) · [Examples](https://omnipython.github.io/gallery/gallery/) · [Roadmap](ROADMAP.md)
 
-Made by [PyDevices](https://pydevices.com).
+Made by [PyDevices](https://omnipython.com).
