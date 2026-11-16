@@ -4,13 +4,13 @@ Nothing in the index is edited by hand. Each package is built from a release of 
 
 ## A request per release
 
-A release in any of the source repositories sends this repository a request naming the release. A merge to pydevices' `main` that changes `board_configs/` or `drivers/` (`tested.json` included) sends one too, naming the commit. The board and driver files then come from that commit and everything else from the last pydevices release, so a board or driver is published when it merges. The next pydevices release carries them and clears the commit.
+A release in any of the source repositories sends this repository a request naming the release. A merge to omnipython's `main` that changes `board_configs/` or `drivers/` (`tested.json` included) sends one too, naming the commit. The board and driver files then come from that commit and everything else from the last omnipython release, so a board or driver is published when it merges. The next omnipython release carries them and clears the commit.
 
 ## pins.json, then a build
 
-[`publish.yml`](../../.github/workflows/publish.yml) records each request in [`pins.json`](../../pins.json) as soon as it arrives. It then rebuilds every package from the releases pinned there with pydevices' `tools/libbuild.py`, and deploys the result to GitHub Pages. Before it deploys, the build checks that no package name here is also one of micropython-lib's, because `omip` looks here first and a match would hide theirs. If micropython-lib's index can't be read, the build warns and carries on.
+[`publish.yml`](../../.github/workflows/publish.yml) records each request in [`pins.json`](../../pins.json) as soon as it arrives. It then rebuilds every package from the releases pinned there with omnipython's `tools/libbuild.py`, and deploys the result to GitHub Pages. Before it deploys, the build checks that no package name here is also one of micropython-lib's, because `omip` looks here first and a match would hide theirs. If micropython-lib's index can't be read, the build warns and carries on.
 
-When a package moves to a new repository, its entry in `pins.json` names the new one and lists the old under `formerly`. A pydevices release made before the move still names the old repository in its `lib-lock.json`; the build takes the package from the new one at the pinned tag.
+When a package moves to a new repository, its entry in `pins.json` names the new one and lists the old under `formerly`. An omnipython release made before the move still names the old repository in its `lib-lock.json`; the build takes the package from the new one at the pinned tag.
 
 ## Adafruit's bundle
 

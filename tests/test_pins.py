@@ -27,11 +27,11 @@ spec.loader.exec_module(pins)
 BOARDS = "1" * 40
 BOARDS2 = "2" * 40
 PINS = {
-    "pydevices": {"repository": "PyDevices/pydevices", "ref": "v0.7.7rc1"},
-    "boards": {"repository": "PyDevices/pydevices", "ref": None},
-    "palettes": {"repository": "PyDevices/pydevices", "ref": "palettes-v0.0.15rc1"},
-    "pdwidgets": {"repository": "PyDevices/pydevices", "ref": None},
-    "iconkit": {"repository": "PyDevices/pydevices", "ref": None},
+    "omnipython": {"repository": "PyDevices/omnipython", "ref": "v0.7.7rc1"},
+    "boards": {"repository": "PyDevices/omnipython", "ref": None},
+    "palettes": {"repository": "PyDevices/omnipython", "ref": "palettes-v0.0.15rc1"},
+    "pdwidgets": {"repository": "PyDevices/omnipython", "ref": None},
+    "iconkit": {"repository": "PyDevices/omnipython", "ref": None},
     "pygraphics": {"repository": "PyDevices/pygraphics", "ref": "v0.1.0"},
     "adafruit": {"repository": "adafruit/Adafruit_CircuitPython_Bundle", "ref": "20261101"},
 }
@@ -77,35 +77,35 @@ class Applying(Checkout):
     def test_a_release_sets_its_pin_and_clears_the_boards_pin(self):
         clone = self.clone("a")
         self.use(clone)
-        pins.apply("boards", "PyDevices/pydevices", BOARDS)
+        pins.apply("boards", "PyDevices/omnipython", BOARDS)
         self.assertEqual(pins.load()["boards"]["ref"], BOARDS)
-        pins.apply("pydevices", "PyDevices/pydevices", "v0.7.7")
-        self.assertEqual(pins.load()["pydevices"]["ref"], "v0.7.7")
+        pins.apply("omnipython", "PyDevices/omnipython", "v0.7.7")
+        self.assertEqual(pins.load()["omnipython"]["ref"], "v0.7.7")
         self.assertIsNone(pins.load()["boards"]["ref"])
 
     def test_refuses_what_is_not_a_request(self):
         self.use(self.clone("a"))
-        for args in (("boards", "PyDevices/pydevices", "v0.7.7"),
-                     ("pydevices", "PyDevices/pydevices", BOARDS),
-                     ("palettes", "PyDevices/pydevices", "v0.0.15"),
-                     ("pygraphics", "PyDevices/pydevices", "v0.1.1"),
-                     ("nothing", "PyDevices/pydevices", "v0.7.7"),
+        for args in (("boards", "PyDevices/omnipython", "v0.7.7"),
+                     ("omnipython", "PyDevices/omnipython", BOARDS),
+                     ("palettes", "PyDevices/omnipython", "v0.0.15"),
+                     ("pygraphics", "PyDevices/omnipython", "v0.1.1"),
+                     ("nothing", "PyDevices/omnipython", "v0.7.7"),
                      ("adafruit", "adafruit/Adafruit_CircuitPython_Bundle", "v0.7.7"),
-                     ("adafruit", "PyDevices/pydevices", "20261110"),
-                     ("pydevices", "PyDevices/pydevices", "20261110")):
+                     ("adafruit", "PyDevices/omnipython", "20261110"),
+                     ("omnipython", "PyDevices/omnipython", "20261110")):
             with self.assertRaises(SystemExit, msg=args):
                 pins.apply(*args)
 
     def test_a_folder_release_pins_its_own_profile(self):
         self.use(self.clone("a"))
-        pins.apply("iconkit", "PyDevices/pydevices", "iconkit-v0.1.0.dev1")
+        pins.apply("iconkit", "PyDevices/omnipython", "iconkit-v0.1.0.dev1")
         self.assertEqual(pins.load()["iconkit"]["ref"], "iconkit-v0.1.0.dev1")
 
     def test_a_folder_profile_refuses_another_folders_tag(self):
         self.use(self.clone("a"))
-        for args in (("iconkit", "PyDevices/pydevices", "palettes-v0.0.16"),
-                     ("iconkit", "PyDevices/pydevices", "v0.1.0"),
-                     ("pydevices", "PyDevices/pydevices", "iconkit-v0.1.0")):
+        for args in (("iconkit", "PyDevices/omnipython", "palettes-v0.0.16"),
+                     ("iconkit", "PyDevices/omnipython", "v0.1.0"),
+                     ("omnipython", "PyDevices/omnipython", "iconkit-v0.1.0")):
             with self.assertRaises(SystemExit, msg=args):
                 pins.apply(*args)
 
@@ -156,21 +156,21 @@ class Verifying(unittest.TestCase):
 class Recording(Checkout):
     def test_pushes_the_pin_to_the_remote(self):
         self.use(self.clone("a"))
-        pins.record("palettes", "PyDevices/pydevices", "palettes-v0.0.14")
+        pins.record("palettes", "PyDevices/omnipython", "palettes-v0.0.14")
         self.assertEqual(self.remote_pins()["palettes"]["ref"], "palettes-v0.0.14")
-        self.assertEqual(git(self.remote, "log", "-1", "--format=%s", "main"), "Publish pydevices palettes-v0.0.14")
+        self.assertEqual(git(self.remote, "log", "-1", "--format=%s", "main"), "Publish omnipython palettes-v0.0.14")
 
     def test_boards_message_names_the_short_commit(self):
         self.use(self.clone("a"))
-        pins.record("boards", "PyDevices/pydevices", BOARDS)
+        pins.record("boards", "PyDevices/omnipython", BOARDS)
         self.assertEqual(git(self.remote, "log", "-1", "--format=%s", "main"),
-                         "Publish boards and drivers from pydevices 111111111111")
+                         "Publish boards and drivers from omnipython 111111111111")
 
     def test_the_same_request_twice_commits_once(self):
         self.use(self.clone("a"))
-        pins.record("palettes", "PyDevices/pydevices", "palettes-v0.0.14")
+        pins.record("palettes", "PyDevices/omnipython", "palettes-v0.0.14")
         before = git(self.remote, "rev-parse", "main")
-        pins.record("palettes", "PyDevices/pydevices", "palettes-v0.0.14")
+        pins.record("palettes", "PyDevices/omnipython", "palettes-v0.0.14")
         self.assertEqual(git(self.remote, "rev-parse", "main"), before)
 
     def test_a_request_recorded_after_a_stale_checkout_keeps_the_earlier_one(self):
@@ -179,9 +179,9 @@ class Recording(Checkout):
         # does not have it. Both must be in main afterwards.
         release, boards = self.clone("release"), self.clone("boards")
         self.use(release)
-        pins.record("palettes", "PyDevices/pydevices", "palettes-v0.0.14")
+        pins.record("palettes", "PyDevices/omnipython", "palettes-v0.0.14")
         self.use(boards)  # still at the commit before the release
-        pins.record("boards", "PyDevices/pydevices", BOARDS)
+        pins.record("boards", "PyDevices/omnipython", BOARDS)
         final = self.remote_pins()
         self.assertEqual(final["palettes"]["ref"], "palettes-v0.0.14")
         self.assertEqual(final["boards"]["ref"], BOARDS)
@@ -208,7 +208,7 @@ class Recording(Checkout):
         pins.time.sleep = lambda seconds: None
         self.addCleanup(setattr, pins.subprocess, "run", original)
         self.addCleanup(setattr, pins.time, "sleep", original_sleep)
-        pins.record("boards", "PyDevices/pydevices", BOARDS)
+        pins.record("boards", "PyDevices/omnipython", BOARDS)
         self.assertTrue(raced)
         final = self.remote_pins()
         self.assertEqual(final["boards"]["ref"], BOARDS)
@@ -219,7 +219,7 @@ class Recording(Checkout):
         requests = [("palettes", "palettes-v0.0.14"), ("boards", BOARDS), ("pygraphics", "v0.1.1")]
         for clone, (profile, ref) in zip(clones, requests):
             self.use(clone)
-            repo = "PyDevices/pygraphics" if profile == "pygraphics" else "PyDevices/pydevices"
+            repo = "PyDevices/pygraphics" if profile == "pygraphics" else "PyDevices/omnipython"
             pins.record(profile, repo, ref)
         final = self.remote_pins()
         self.assertEqual(final["palettes"]["ref"], "palettes-v0.0.14")
@@ -231,13 +231,13 @@ class Recording(Checkout):
         self.use(clone)
         (clone / "pins.json").write_text("{}\n")
         with self.assertRaises(SystemExit):
-            pins.record("boards", "PyDevices/pydevices", BOARDS)
+            pins.record("boards", "PyDevices/omnipython", BOARDS)
 
     def test_a_refused_request_pushes_nothing(self):
         self.use(self.clone("a"))
         before = git(self.remote, "rev-parse", "main")
         with self.assertRaises(SystemExit):
-            pins.record("boards", "PyDevices/pydevices", "v0.7.7")
+            pins.record("boards", "PyDevices/omnipython", "v0.7.7")
         self.assertEqual(git(self.remote, "rev-parse", "main"), before)
 
 

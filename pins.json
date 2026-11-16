@@ -1,22 +1,22 @@
 {
-  "pydevices": {
-    "repository": "PyDevices/pydevices",
+  "omnipython": {
+    "repository": "PyDevices/omnipython",
     "ref": "v0.8.0.dev21"
   },
   "boards": {
-    "repository": "PyDevices/pydevices",
+    "repository": "PyDevices/omnipython",
     "ref": null
   },
   "palettes": {
-    "repository": "PyDevices/pydevices",
+    "repository": "PyDevices/omnipython",
     "ref": "palettes-v0.0.16.dev1"
   },
   "pdwidgets": {
-    "repository": "PyDevices/pydevices",
+    "repository": "PyDevices/omnipython",
     "ref": "pdwidgets-v0.0.26.dev0"
   },
   "iconkit": {
-    "repository": "PyDevices/pydevices",
+    "repository": "PyDevices/omnipython",
     "ref": "iconkit-v0.1.0.dev2"
   },
   "pygraphics": {

@@ -6,10 +6,10 @@ The packages come from these repositories:
 
 | From | Packages |
 | --- | --- |
-| [pydevices](https://github.com/PyDevices/pydevices) | `pydevices` (the display, audio, event and timing libraries), `pydevices-desktop`, `bledev`, `midiports`, `hmilink`, `appkit`, `sayso`, `palettes`, `pdwidgets`, `iconkit`, the `usb-*` packages, every board config and every driver |
+| [omnipython](https://github.com/PyDevices/omnipython) | `omnipython` (the display, audio, event and timing libraries), `omnipython-desktop`, `bledev`, `midiports`, `hmilink`, `appkit`, `sayso`, `palettes`, `pdwidgets`, `iconkit`, the `usb-*` packages, every board config and every driver |
 | [pygraphics](https://github.com/PyDevices/pygraphics) | `pygraphics` |
 | [audiocomponents](https://github.com/PyDevices/audiocomponents) | `audioinstruments`, `audioeffects` |
 
-A board config's package is named after its folder in [board_configs](https://github.com/PyDevices/pydevices/tree/main/board_configs), and a driver's after its folder in [drivers](https://github.com/PyDevices/pydevices/tree/main/drivers).
+A board config's package is named after its folder in [board_configs](https://github.com/PyDevices/omnipython/tree/main/board_configs), and a driver's after its folder in [drivers](https://github.com/PyDevices/omnipython/tree/main/drivers).
 
 Packages from micropython-lib aren't here, and no package here has a name micropython-lib uses: the build fails if one does, so neither can hide the other. `omip` brings them; with `mip`, [install those first](../get-started/install.md#packages-from-micropython-lib) from the default index.
