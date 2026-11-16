@@ -2,7 +2,7 @@
 
 # lib
 
-The `mip` index for OmniPython's libraries, board configs and drivers, at **https://pydevices.github.io/lib**.
+The `mip` index for OmniPython's libraries, board configs and drivers, at **https://lib.omnipython.org**.
 
 ## Install
 
@@ -22,7 +22,7 @@ mpremote mip install github:PyDevices/pydevices/lib/omip.py
 From a computer, onto a board on USB, with no Wi-Fi at all:
 
 ```bash
-mpremote mip install --index https://pydevices.github.io/lib pydevices
+mpremote mip install --index https://lib.omnipython.org pydevices
 ```
 
 ## Try it
@@ -30,7 +30,7 @@ mpremote mip install --index https://pydevices.github.io/lib pydevices
 With the unix port of MicroPython, install pygraphics into `lib/` and draw:
 
 ```bash
-micropython -m mip install --index https://pydevices.github.io/lib --target lib pygraphics
+micropython -m mip install --index https://lib.omnipython.org --target lib pygraphics
 ```
 
 ```python
