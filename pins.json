@@ -13,7 +13,7 @@
   },
   "pdwidgets": {
     "repository": "PyDevices/omnipython",
-    "ref": "pdwidgets-v0.0.26.dev0"
+    "ref": "pdwidgets-v0.0.26.dev2"
   },
   "iconkit": {
     "repository": "PyDevices/omnipython",
