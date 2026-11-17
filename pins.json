@@ -17,7 +17,7 @@
   },
   "iconkit": {
     "repository": "PyDevices/omnipython",
-    "ref": "iconkit-v0.1.0.dev3"
+    "ref": "iconkit-v0.1.0"
   },
   "pygraphics": {
     "repository": "PyDevices/pygraphics",
