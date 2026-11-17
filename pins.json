@@ -5,7 +5,7 @@
   },
   "boards": {
     "repository": "PyDevices/omnipython",
-    "ref": null
+    "ref": "1769921f659aec0b84f26903021a3dc91d106be4"
   },
   "palettes": {
     "repository": "PyDevices/omnipython",
