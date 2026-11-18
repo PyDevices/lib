@@ -1,11 +1,11 @@
 {
   "omnipython": {
     "repository": "PyDevices/omnipython",
-    "ref": "v0.8.0"
+    "ref": "v0.8.1.dev1"
   },
   "boards": {
     "repository": "PyDevices/omnipython",
-    "ref": "1769921f659aec0b84f26903021a3dc91d106be4"
+    "ref": null
   },
   "palettes": {
     "repository": "PyDevices/omnipython",
