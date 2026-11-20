@@ -43,6 +43,6 @@
   },
   "adafruit": {
     "repository": "adafruit/Adafruit_CircuitPython_Bundle",
-    "ref": "20261119"
+    "ref": "20261120"
   }
 }
