@@ -6,9 +6,10 @@ The packages come from these repositories:
 
 | From | Packages |
 | --- | --- |
-| [omnipython](https://github.com/PyDevices/omnipython) | `omnipython` (the display, audio, event and timing libraries), `omnipython-desktop`, `bledev`, `midiports`, `hmilink`, `appkit`, `sayso`, `palettes`, `pdwidgets`, `iconkit`, the `usb-*` packages, every board config and every driver |
+| [omnipython](https://github.com/PyDevices/omnipython) | `omnipython` (the display, audio, event and timing libraries), `omnipython-desktop`, `bledev`, `midiports`, `hmilink`, `palettes`, `pdwidgets`, `iconkit`, the `usb-*` packages, every board config and every driver |
 | [pygraphics](https://github.com/PyDevices/pygraphics) | `pygraphics` |
-| [audiocomponents](https://github.com/PyDevices/audiocomponents) | `audioinstruments`, `audioeffects` |
+| [audioinstruments](https://github.com/PyDevices/audioinstruments), [audioeffects](https://github.com/PyDevices/audioeffects) | `audioinstruments`, `audioeffects` |
+| [apps](https://github.com/PyDevices/apps) | `applibs`: one package holding every library in the repository's `lib/` (appkit, chatclient, controlkit, sayso and the rest), each imported under its own name |
 
 A board config's package is named after its folder in [board_configs](https://github.com/PyDevices/omnipython/tree/main/board_configs), and a driver's after its folder in [drivers](https://github.com/PyDevices/omnipython/tree/main/drivers).
 

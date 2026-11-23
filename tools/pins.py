@@ -16,8 +16,8 @@
   ``omnipython`` checkout.
 * ``pygraphics``, ``audioinstruments``, ``audioeffects`` and ``applibs`` are
   releases of repositories of their own. ``applibs`` comes from the apps
-  repository and publishes appkit, controlkit and the other libraries apps
-  share, each as its own package.
+  repository: one package holding appkit, controlkit and every other library
+  in its ``lib/``.
 * ``boards`` is a commit, not a release: a merge to the library repository's
   main branch that touched ``board_configs/`` or ``drivers/``. When pinned,
   that commit's two folders replace the ones in the ``omnipython`` checkout, so
