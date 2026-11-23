@@ -1,7 +1,7 @@
 {
   "omnipython": {
     "repository": "PyDevices/omnipython",
-    "ref": "v0.8.1.dev5"
+    "ref": "v0.8.1.dev6"
   },
   "boards": {
     "repository": "PyDevices/omnipython",
