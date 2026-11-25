@@ -21,7 +21,7 @@
   },
   "pygraphics": {
     "repository": "PyDevices/pygraphics",
-    "ref": "v0.2.1.dev0"
+    "ref": "v0.2.1rc1"
   },
   "audioinstruments": {
     "repository": "PyDevices/audioinstruments",
